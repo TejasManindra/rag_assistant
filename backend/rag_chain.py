@@ -10,24 +10,34 @@ client = OpenAI(
     api_key=os.getenv("OPENROUTER_API_KEY")
 )
 
-def generate_answer(query, context):
+def generate_answer(query, context,chat_history=""):
 
     prompt = f"""
-You are an expert document assistant.
+You are a helpful AI assistant.
 
-Answer ONLY from the provided context.
+Answer using ONLY the provided context.
 
-If multiple sections are relevant,
-combine them into a complete answer.
+Instructions:
+1. Use previous conversation if relevant.
+2. Use the document context.
+3. If answer is not available, say so.
+4. Be concise and accurate.
 
-If the answer is not clearly present,
-say:
-'I could not find that information in the document.'
+Rules:
+1. Use information from all retrieved chunks.
+2. Combine information from multiple chunks.
+3. If the answer is partially available, provide the partial answer.
+4. Only say "I could not find that information in the document"
+   if no relevant information exists in the context.
+5. Format answers clearly using bullet points or tables when useful.
 
-Context:
+Previous Conversation:
+{chat_history}
+
+Document Context:
 {context}
 
-Question:
+Current Question:
 {query}
 """
 
