@@ -17,6 +17,7 @@ from backend.pdf_loader import extract_text
 from backend.chunker import create_chunks
 from backend.embeddings import get_embeddings
 from backend.vector_store import store_chunks
+from backend.vector_store import clear_collection
 from backend.retriever import retrieve
 from backend.rag_chain import generate_answer
 
@@ -75,6 +76,11 @@ if uploaded_files:
         st.write(f"📄 {file.name}")
 
     if st.button("🚀 Process PDFs"):
+        #remove old documents
+        clear_collection()
+
+        #reset chat history
+        st.session_state.chat_history = []
 
         with st.spinner("Processing PDFs..."):
 
@@ -157,7 +163,9 @@ if uploaded_files:
             st.success(
                 f"✅ Processed {len(uploaded_files)} PDFs"
             )
-
+            st.info(
+                f"Documents Loaded: {len(uploaded_files)}"
+            )
             st.info(
                 f"Total Chunks: {total_chunks}"
             )
@@ -199,21 +207,27 @@ if question:
                 time.time() - start
             )
 
-            docs = results["documents"][0]
+            retrieved_docs = results["documents"][0]
 
             metadata = results.get(
                 "metadatas",
                 [[]]
             )[0]
 
+            unique_docs = list(
+                dict.fromkeys(
+                    retrieved_docs
+                )
+            )
+
             context = "\n".join(
-                docs[:4]
+                unique_docs[:6]
             )
 
             # Build Chat History
             history_text = ""
 
-            for q, a in st.session_state.chat_history:
+            for q, a in st.session_state.chat_history[-2:]:
 
                 history_text += (
                     f"User: {q}\n"
@@ -281,7 +295,7 @@ if question:
         ):
 
             for i, doc in enumerate(
-                docs[:4],
+                retrieved_docs[:4],
                 start=1
             ):
 
