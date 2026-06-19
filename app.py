@@ -1,12 +1,13 @@
-from backend.pdf_loader import extract_text_from_pdf
-from backend.chunker import create_chunks
+from backend.retriever import retrieve
+from backend.rag_chain import generate_answer
 
-pdf_path = "data/uploads/cnn_rnn_sample.pdf"
+query = input("Ask a question: ")
 
-text = extract_text_from_pdf(pdf_path)
+results = retrieve(query)
 
-chunks = create_chunks(text)
+context = "\n".join(results["documents"][0])
 
-print(f"Total Chunks: {len(chunks)}")
+answer = generate_answer(query, context)
 
-print(chunks[0])
+print("\nAnswer:\n")
+print(answer)
