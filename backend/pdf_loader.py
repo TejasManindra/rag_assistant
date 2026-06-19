@@ -24,7 +24,9 @@ def extract_text(pdf_path):
 
             else:
 
-                pix = page.get_pixmap()
+                pix = page.get_pixmap(
+                    matrix=fitz.Matrix(3,3)
+                )
 
                 temp_img = "temp_page.png"
 
